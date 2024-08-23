@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+ <html lang="en">
+ <head>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>Performance Monitor</title>
+     <style>
+         body {
+             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+             margin: 0;
+             padding: 0;
+             background-color: #f4f7f9;
+         }
+         .header {
+             background-color: #343a40;
+             color: white;
+             padding: 20px;
+             text-align: center;
+             border-bottom: 4px solid #495057;
+         }
+         .navbar {
+             display: flex;
+             justify-content: center;
+             background-color: #007bff;
+             padding: 10px 0;
+             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+         }
+         .navbar a {
+             color: white;
+             text-decoration: none;
+             padding: 10px 20px;
+             font-size: 1rem;
+             transition: background-color 0.3s ease, color 0.3s ease;
+         }
+         .navbar a:hover {
+             background-color: #0056b3;
+             color: #ffffff;
+         }
+         .container {
+             max-width: 1000px;
+             margin: 30px auto;
+             background: #ffffff;
+             padding: 20px;
+             border-radius: 12px;
+             box-shadow: 0 0 20px rgba(0,0,0,0.1);
+             border: 1px solid #dee2e6;
+         }
+         h1 {
+             font-size: 2.5rem;
+             margin-bottom: 20px;
+             font-weight: 600;
+             color: #343a40;
+         }
+         h2 {
+             color: #007bff;
+             border-bottom: 2px solid #007bff;
+             padding-bottom: 8px;
+             margin-bottom: 15px;
+             font-size: 1.8rem;
+             font-weight: 500;
+         }
+         table {
+             width: 100%;
+             border-collapse: collapse;
+             margin: 20px 0;
+         }
+         table, th, td {
+             border: 1px solid #dee2e6;
+         }
+         th {
+             background-color: #007bff;
+             color: white;
+             padding: 15px;
+             text-align: center;
+             font-weight: 500;
+         }
+         td {
+             padding: 12px;
+             text-align: center;
+             color: rgb(150, 0, 0);
+         }
+         tr:hover{ background-color: rgb(202, 214, 228);
+        }
+         img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 20px 0;
+            border: 3px solid #007bff;
+            border-radius: 10px;
+        }
+         canvas {
+             max-width: 100%;
+             height: auto;
+             display: block;
+             margin: 20px 0;
+         }
+         .links {
+             text-align: center;
+             margin-top: 30px;
+         }
+         .links a {
+             text-decoration: none;
+             background-color: #007bff;
+             color: white;
+             padding: 12px 24px;
+             border-radius: 6px;
+             margin: 0 10px;
+             display: inline-block;
+             font-size: 1rem;
+             transition: background-color 0.3s ease, transform 0.3s ease;
+         }
+         .links a:hover {
+             background-color: #0056b3;
+             transform: translateY(-2px);
+         }
+         
+         .footer {
+             text-align: center;
+             margin-top: 40px;
+             padding: 20px;
+             background-color: #343a40;
+             color: white;
+             border-top: 1px solid #495057;
+         }
+         .footer p {
+             margin: 0;
+         }
+         .scroll-to-top {
+             position: fixed;
+             bottom: 20px;
+             right: 20px;
+             background-color: #007bff;
+             color: white;
+             border: none;
+             border-radius: 50%;
+             width: 50px;
+             height: 50px;
+             text-align: center;
+             line-height: 50px;
+             font-size: 24px;
+             cursor: pointer;
+             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+             display: none; /* İlk başta görünmez */
+             transition: opacity 0.3s ease;
+         }
+         .scroll-to-top:hover {
+             background-color: #0056b3;
+         }
+         
+     </style>
+     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+ </head>
+ <body>
+     <div class="header">
+         <h1 style="color: #f4f7f9;">System Performance Monitor</h1>
+     </div>
+     <div class="navbar">
+         <a href="#">Home</a>
+         <a href="#cpu">CPU Usage</a>
+         <a href="#memory">Memory Usage</a>
+         <a href="#disk">Disk Usage</a>
+         <a href="#logs">Logs</a>
+     </div>
+     <div class="container">
+        <img src="/graph" alt="Performance Graph">
+         <h2 id="cpu">CPU Usage</h2>
+         <canvas id="cpuChart"></canvas>
+         
+            <table id="cpuTable">
+                <tr>
+                    <!--cpu ile ilgili veriler burada gözükecek-->
+                </tr>
+                
+            </table>
+    
+            <h2 id="memory">Memory Usage</h2>
+            <canvas id="memoryChart"></canvas>
+            <table id="memoryTable">
+                <tr>
+                    <!--memory ile ilgili veriler burada gözükecek-->
+                    
+                </tr>
+                
+            </table>
+    
+            <h2 id="disk">Disk Usage</h2>
+            <canvas id="diskChart"></canvas>
+            <table id="diskTable">
+                <tr>
+                    <!--Disk ile ilgili veriler burada gözükecek-->
+                    
+                </tr>
+                
+            </table>
+         
+         
+ 
+         <div class="links" id="logs">
+             <a href="/logs/cpu_usage.csv">Download CPU Logs</a>
+             <a href="/logs/memory_usage.csv">Download Memory Logs</a>
+             <a href="/logs/disk_usage.csv">Download Disk Logs</a>
+         </div>
+     </div>
+     <div class="footer">
+         <p>© 2024 Performance Monitoring System. All rights reserved.</p>
+     </div>
+     <div class="scroll-to-top" id="scrollToTopBtn">
+         ↑
+     </div>
+     <script>
+         // Sayfa kaydırma olayını dinleme işlemi
+         window.addEventListener('scroll', function() {
+             const scrollToTopBtn = document.getElementById('scrollToTopBtn');
+             if (window.scrollY > 300) { // 300px aşağı kaydırılmışsa butonu göster
+                 scrollToTopBtn.style.display = 'block';
+             } else {
+                 scrollToTopBtn.style.display = 'none';
+             }
+         });
+ 
+         // Butona tıklama olayını dinle
+         document.getElementById('scrollToTopBtn').addEventListener('click', function() {
+             window.scrollTo({ top: 0, behavior: 'smooth' });
+         });
+ 
+         function parseCSV(data) {
+             const rows = data.trim().split('\n');
+             const headers = rows[0].split(',');
+             const parsedData = rows.slice(1).map(row => row.split(','));
+             return { headers, parsedData };
+         }
+ 
+         function fetchAndParseCSV(url, chartId, tableId) {
+             fetch(url)
+                 .then(response => response.text())
+                 .then(data => {
+                     const { headers, parsedData } = parseCSV(data);
+                     const labels = parsedData.map(row => row[0]);
+                     const values = parsedData.map(row => row[1]);
+ 
+                     // Update table
+                     const table = document.getElementById(tableId);
+                     table.innerHTML = `<tr><th>${headers[0]}</th><th>${headers[1]}</th></tr>`;
+                     parsedData.forEach(row => {
+                         table.innerHTML += `<tr><td>${row[0]}</td><td>${row[1]}</td></tr>`;
+                     });
+ 
+                     // Update chart
+                     new Chart(document.getElementById(chartId), {
+                         type: 'line',
+                         data: {
+                             labels: labels,
+                             datasets: [{
+                                 label: headers[1],
+                                 data: values,
+                                 borderColor: '#007bff',
+                                 backgroundColor: 'rgba(0, 123, 255, 0.2)',
+                                 borderWidth: 2,
+                                 fill: true,
+                             }]
+                         },
+                         options: {
+                             responsive: true,
+                             scales: {
+                                 x: {
+                                     beginAtZero: true
+                                 },
+                                 y: {
+                                     beginAtZero: true
+                                 }
+                             }
+                         }
+                     });
+                 });
+         }
+ 
+         // Fetch CSV data and initialize charts
+         fetchAndParseCSV('/logs/cpu_usage.csv', 'cpuChart', 'cpuTable');
+         fetchAndParseCSV('/logs/memory_usage.csv', 'memoryChart', 'memoryTable');
+         fetchAndParseCSV('/logs/disk_usage.csv', 'diskChart', 'diskTable');
+     </script>
+ </body>
+ </html>

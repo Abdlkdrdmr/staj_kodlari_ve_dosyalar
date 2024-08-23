@@ -1,0 +1,64 @@
+import mysql.connector
+
+
+conn = mysql.connector.connect(
+    host="localhost",
+    user="root",
+    password="Taylan34-34",
+    database="argela"
+)
+
+start_time = input("Başlangıç zamanı giriniz (YYYY-MM-DD HH:MM:SS): ")
+end_time = input("Bitiş zamanı giriniz (YYYY-MM-DD HH:MM:SS): ")
+a_number = input("Msisdn numaranızı giriniz: ")
+
+
+sqlsorgu = """
+SELECT 
+    CASE
+        WHEN procedure_type = 0 THEN 'No Procedure'
+        WHEN procedure_type = 1 THEN 'Video'
+        WHEN procedure_type = 2 THEN 'Speech'
+        WHEN procedure_type = 3 THEN 'SMS'
+        WHEN procedure_type = 4 THEN 'Location'
+        WHEN procedure_type = 5 THEN 'IMSI Detach'
+        WHEN procedure_type = 8 THEN 'Non Call Related'
+        WHEN procedure_type = 9 THEN 'Paging'
+        WHEN procedure_type = 10 THEN 'Emergency Setup'
+        WHEN procedure_type = 19 THEN 'Location Query'
+        WHEN procedure_type = 22 THEN 'Paging Timeout'
+        ELSE 'Unknown'
+    END AS Procedure_Type_Category,
+    COUNT(*) AS Count
+FROM xdr_bssap 
+WHERE start_time >= %s AND start_time <= %s AND a_number = %s
+GROUP BY Procedure_Type_Category
+ORDER BY Count DESC
+"""
+
+cursor = conn.cursor()
+cursor.execute(sqlsorgu, (start_time, end_time, a_number))
+result = cursor.fetchall()
+
+conn.close()
+
+
+if result:
+    print("Kategorilere göre sayım:")
+    for row in result:
+        print(f"{row[0]}: {row[1]}")
+else:
+    print("Bu zaman aralığında eşleşen kayıt bulunamadı.")
+
+
+'''SELECT COUNT(*) AS count_of_3
+FROM xdr_bssap
+WHERE procedure_type = 3
+AND a_number = 'Zengimcell';'''
+''' [kdr@localhost Desktop]$ python3 prosedür.py 
+Başlangıç zamanı giriniz (YYYY-MM-DD HH:MM:SS): 2023-01-01 10:10:10
+Bitiş zamanı giriniz (YYYY-MM-DD HH:MM:SS): 2025-02-02 10:10:10
+Msisdn numaranızı giriniz: Zengimcell
+Kategorilere göre sayım:
+SMS: 81
+[kdr@localhost Desktop]$ '''

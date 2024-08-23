@@ -1,0 +1,71 @@
+#!/bin/bash
+
+# Verilerin saklanacağı bir alan oluşturma
+LOG_DIR="$HOME/performance_monitor"
+mkdir -p $LOG_DIR
+
+# Zaman damgasını alma
+TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
+
+# log dosyasının adını oluşturma işlemi
+LOG_FILE="$LOG_DIR/performance_$TIMESTAMP.log"
+
+# Bilgileri toplamak ve log dosyasına yazmak için fonksiyonlar
+echo "Performans verileri toplama başladı: $TIMESTAMP" > $LOG_FILE
+
+# CPU Kullanımı
+echo -e "\n--- CPU Kullanımı ---" >> $LOG_FILE
+top -bn1 | grep "Cpu(s)" >> $LOG_FILE
+
+# Bellek Kullanımı
+echo -e "\n--- Bellek Kullanımı ---" >> $LOG_FILE
+free -h >> $LOG_FILE
+
+# Disk Kullanımı
+echo -e "\n--- Disk Kullanımı ---" >> $LOG_FILE
+df -h >> $LOG_FILE
+
+# Ağ Kullanımı
+echo -e "\n--- Ağ Kullanımı ---" >> $LOG_FILE
+sar -n DEV 1 1 >> $LOG_FILE
+
+# İşlem Bilgileri
+echo -e "\n--- İşlem Bilgileri ---" >> $LOG_FILE
+ps aux --sort=-%mem | head -n 10 >> $LOG_FILE
+
+echo "Performans verileri toplama tamamlandı: $TIMESTAMP" >> $LOG_FILE
+
+# Verileri veri dosyalarına kaydetme
+echo "CPU Kullanım Verilerini Kaydediyorum..."
+top -bn1 | grep "Cpu(s)" | awk '{print strftime("%Y-%m-%d_%H-%M-%S"), $2}' > $LOG_DIR/cpu_usage.dat
+
+echo "Bellek Kullanım Verilerini Kaydediyorum..."
+free -h | awk '/Mem:/ {print strftime("%Y-%m-%d_%H-%M-%S"), $3/$2*100}' > $LOG_DIR/memory_usage.dat
+
+echo "Disk Kullanım Verilerini Kaydediyorum..."
+df -h | awk '/\/$/ {print strftime("%Y-%m-%d_%H-%M-%S"), $5}' > $LOG_DIR/disk_usage.dat
+
+# Görselleştirme yapmak için gnuplot konfigürasyon dosyasını oluşturma
+cat <<EOF > $LOG_DIR/plot_config.gp
+set terminal pngcairo size 800,600 enhanced font 'Verdana,10'
+set output '$LOG_DIR/performance_graph.png'
+
+set title "Sistem Performans Verileri"
+set xlabel "Zaman"
+set ylabel "Kullanım (%)"
+set xdata time
+set timefmt "%Y-%m-%d_%H-%M-%S"
+set format x "%H:%M"
+set grid
+set key outside
+
+plot \
+  '$LOG_DIR/cpu_usage.dat' using 1:2 with lines title 'CPU Kullanımı', \
+  '$LOG_DIR/memory_usage.dat' using 1:2 with lines title 'Bellek Kullanımı', \
+  '$LOG_DIR/disk_usage.dat' using 1:2 with lines title 'Disk Kullanımı'
+EOF
+
+# Gnuplot kullanarak grafiği oluşturma
+gnuplot $LOG_DIR/plot_config.gp
+
+echo "Görselleştirme tamamlandı. Grafik $LOG_DIR/performance_graph.png dosyasında."

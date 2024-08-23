@@ -1,0 +1,85 @@
+import os
+import psutil
+import pandas as pd
+import matplotlib.pyplot as plt
+from datetime import datetime
+
+# Verilerin saklanacağı bir alan oluşturma
+LOG_DIR = os.path.expanduser("~/performance_monitor")
+os.makedirs(LOG_DIR, exist_ok=True)
+
+# Zaman damgasını alma
+timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+
+# Bilgileri toplamak ve log dosyasına yazmak için fonksiyonlar
+log_file = os.path.join(LOG_DIR, f"performance_{timestamp}.log")
+with open(log_file, 'w') as f:
+    f.write(f"Performans verileri toplama başladı: {timestamp}\n")
+
+    # CPU Kullanımı
+    f.write("\n--- CPU Kullanımı ---\n")
+    cpu_usage = psutil.cpu_percent(interval=1)
+    f.write(f"Cpu Kullanımı: {cpu_usage}%\n")
+
+    # Bellek Kullanımı
+    f.write("\n--- Bellek Kullanımı ---\n")
+    memory_info = psutil.virtual_memory()
+    f.write(f"Toplam Bellek: {memory_info.total / (1024 ** 3):.2f} GB\n")
+    f.write(f"Kullanılan Bellek: {memory_info.used / (1024 ** 3):.2f} GB\n")
+    f.write(f"Bellek Kullanımı: {memory_info.percent}%\n")
+
+    # Disk Kullanımı
+    f.write("\n--- Disk Kullanımı ---\n")
+    disk_usage = psutil.disk_usage('/')
+    f.write(f"Disk Toplam: {disk_usage.total / (1024 ** 3):.2f} GB\n")
+    f.write(f"Disk Kullanılan: {disk_usage.used / (1024 ** 3):.2f} GB\n")
+    f.write(f"Disk Kullanımı: {disk_usage.percent}%\n")
+
+    # Ağ Kullanımı
+    f.write("\n--- Ağ Kullanımı ---\n")
+    net_io = psutil.net_io_counters()
+    f.write(f"Gönderilen Veriler: {net_io.bytes_sent / (1024 ** 2):.2f} MB\n")
+    f.write(f"Alınan Veriler: {net_io.bytes_recv / (1024 ** 2):.2f} MB\n")
+
+    # İşlem Bilgileri
+    f.write("\n--- İşlem Bilgileri ---\n")
+    process_info = [(p.info['pid'], p.info['name'], p.info['memory_percent']) for p in psutil.process_iter(['pid', 'name', 'memory_percent'])]
+    process_info = sorted(process_info, key=lambda x: x[2], reverse=True)[:10]
+    for pid, name, memory in process_info:
+        f.write(f"PID: {pid}, İsim: {name}, Bellek Kullanımı: {memory:.2f}%\n")
+
+    f.write(f"Performans verileri toplama tamamlandı: {timestamp}\n")
+
+# Verileri veri dosyalarına kaydetme
+cpu_data = [(timestamp, cpu_usage)]
+memory_data = [(timestamp, memory_info.percent)]
+disk_data = [(timestamp, disk_usage.percent)]
+
+cpu_df = pd.DataFrame(cpu_data, columns=['timestamp', 'cpu_usage'])
+memory_df = pd.DataFrame(memory_data, columns=['timestamp', 'memory_usage'])
+disk_df = pd.DataFrame(disk_data, columns=['timestamp', 'disk_usage'])
+
+cpu_df.to_csv(os.path.join(LOG_DIR, 'cpu_usage.csv'), mode='a', header=not os.path.exists(os.path.join(LOG_DIR, 'cpu_usage.csv')), index=False)
+memory_df.to_csv(os.path.join(LOG_DIR, 'memory_usage.csv'), mode='a', header=not os.path.exists(os.path.join(LOG_DIR, 'memory_usage.csv')), index=False)
+disk_df.to_csv(os.path.join(LOG_DIR, 'disk_usage.csv'), mode='a', header=not os.path.exists(os.path.join(LOG_DIR, 'disk_usage.csv')), index=False)
+
+# Daha önce kaydedilmiş tüm verileri okuma ve birleştirme
+cpu_df = pd.read_csv(os.path.join(LOG_DIR, 'cpu_usage.csv'))
+memory_df = pd.read_csv(os.path.join(LOG_DIR, 'memory_usage.csv'))
+disk_df = pd.read_csv(os.path.join(LOG_DIR, 'disk_usage.csv'))
+
+# Görselleştirme yapmak için matplotlib kullanma
+plt.figure(figsize=(10, 6))
+plt.plot(cpu_df['timestamp'], cpu_df['cpu_usage'], label='CPU Kullanımı')
+plt.plot(memory_df['timestamp'], memory_df['memory_usage'], label='Bellek Kullanımı')
+plt.plot(disk_df['timestamp'], disk_df['disk_usage'], label='Disk Kullanımı')
+plt.xlabel('Zaman')
+plt.ylabel('Kullanım (%)')
+plt.title('Sistem Performans Verileri')
+plt.legend()
+plt.grid(True)
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.savefig(os.path.join(LOG_DIR, 'performance_graph.png'))
+
+print(f"Görselleştirme tamamlandı. Grafik {os.path.join(LOG_DIR, 'performanceA_graph.png')} dosyasında.")

@@ -1,0 +1,31 @@
+Performans verileri toplama başladı: 2024-08-06_09-43-16
+
+--- CPU Kullanımı ---
+Cpu Kullanımı: 0.7%
+
+--- Bellek Kullanımı ---
+Toplam Bellek: 7.50 GB
+Kullanılan Bellek: 2.81 GB
+Bellek Kullanımı: 41.8%
+
+--- Disk Kullanımı ---
+Disk Toplam: 35.35 GB
+Disk Kullanılan: 7.02 GB
+Disk Kullanımı: 19.9%
+
+--- Ağ Kullanımı ---
+Gönderilen Veriler: 5.44 MB
+Alınan Veriler: 165.55 MB
+
+--- İşlem Bilgileri ---
+PID: 2242, İsim: mysqld, Bellek Kullanımı: 6.60%
+PID: 3466, İsim: firefox, Bellek Kullanımı: 5.74%
+PID: 2632, İsim: gnome-shell, Bellek Kullanımı: 5.63%
+PID: 3814, İsim: Isolated Web Co, Bellek Kullanımı: 3.87%
+PID: 3350, İsim: code, Bellek Kullanımı: 3.15%
+PID: 3764, İsim: Isolated Web Co, Bellek Kullanımı: 3.08%
+PID: 3608, İsim: Privileged Cont, Bellek Kullanımı: 2.70%
+PID: 3217, İsim: code, Bellek Kullanımı: 2.47%
+PID: 3868, İsim: Isolated Web Co, Bellek Kullanımı: 1.92%
+PID: 3394, İsim: code, Bellek Kullanımı: 1.58%
+Performans verileri toplama tamamlandı: 2024-08-06_09-43-16

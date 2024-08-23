@@ -1,0 +1,9 @@
+#! /bin/bash
+
+ay=$(date +%m)
+
+case $ay in
+02) echo "Bu ay 28 gündür ve her 4 yılda bir 29 gün olur.";;
+04|06|09|11) echo "Bu aylar 30 gündür.";;
+*) echo "Bu ay 31 gündür";;
+esac

@@ -1,0 +1,30 @@
+from flask import Flask, render_template, send_from_directory
+import os
+import pandas as pd
+
+app = Flask(__name__)
+log_dir = '/home/kdr/performance_monitor'
+
+@app.route('/')
+def index():
+    # CPU, Bellek, Disk loglarını CSV dosyalarından oku
+    cpu_df = pd.read_csv(os.path.join(log_dir, 'cpu_usage.csv'))
+    memory_df = pd.read_csv(os.path.join(log_dir, 'memory_usage.csv'))
+    disk_df = pd.read_csv(os.path.join(log_dir, 'disk_usage.csv'))
+
+    # CSV verilerini HTML tablosu olarak render et
+    return render_template('index.html', 
+                           cpu_data=cpu_df.to_html(index=False), 
+                           memory_data=memory_df.to_html(index=False), 
+                           disk_data=disk_df.to_html(index=False))
+
+@app.route('/logs/<path:filename>')
+def download_file(filename):
+    return send_from_directory(log_dir, filename)
+
+@app.route('/graph')
+def graph():
+    return send_from_directory(log_dir, 'performance_graph.png')
+
+if __name__ == '__main__':
+    app.run(debug=True)

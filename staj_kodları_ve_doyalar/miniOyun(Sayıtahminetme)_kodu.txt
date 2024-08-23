@@ -1,0 +1,29 @@
+#!/bin/bash
+
+random=$(( ($RANDOM % 100) + 1 ))
+echo "1 ile 100 arasında bir sayı (1 ve 100 dahil) tuttum."
+echo "Bil bakalım ...."
+echo -e "1 ile 100 arasında bir sayı giriniz: \c"
+read tahmin
+
+tahminSayisi=1
+while (( tahmin != random ))
+do
+    if (( tahmin > random ))
+    then
+        echo "Lütfen daha küçük bir sayı giriniz."
+    elif (( tahmin < random ))
+    then
+        echo "Lütfen daha büyük bir sayı giriniz."
+    fi
+    echo -e "1 ile 100 arasında bir sayı giriniz: \c"
+    read tahmin
+    ((tahminSayisi++))
+done
+
+echo "$tahminSayisi defada bildiniz."
+
+if [[ $tahminSayisi -lt 6 ]]
+then
+    echo "Tebrikler"
+fi

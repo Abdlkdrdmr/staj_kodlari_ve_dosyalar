@@ -1,0 +1,42 @@
+#!/bin/bash
+
+# Kullanıcıdan isim ve soyisim bilgisi al
+read -p "Adınızı giriniz (Örn: Ahmet Mehmet): " tam_ad
+
+# Ad ve soyadı parçalara ayır (boşluklara göre)
+IFS=' ' read -ra ad_parcalari <<< "$tam_ad"
+
+# Login ismini oluştur (Sadece alfanümerik karakterler ve alt çizgi)
+login_isim=$(echo "${ad_parcalari[*]}" | tr -s ' ' '_' | tr -c '[:alnum:]_' '_')
+
+# Shell seçimi
+PS3="Kullanmak istediğiniz shell'i seçin: "
+select shell in "ksh" "bash"
+do
+  case $shell in
+    ksh) sec_shell="/bin/ksh"; break ;;
+    bash) sec_shell="/bin/bash"; break ;;
+    *) echo "Geçersiz seçim. Lütfen 1 veya 2 giriniz." ;;
+  esac
+done
+
+# Home directory oluşturma seçeneği
+PS3="Home directory oluşturulsun mu? (1/2): "
+select cevap in "evet" "hayir"
+do
+  case $cevap in
+    evet) dosya_olustur="-m"; break ;;
+    hayir) dosya_olustur=""; break ;;
+    *) echo "Geçersiz seçim. Lütfen 1 veya 2 giriniz." ;;
+  esac
+done
+
+# Kullanıcı grubunu seçme (varsayılan: users)
+read -p "Kullanıcıyı eklemek istediğiniz grup (varsayılan: users): " grup
+grup=${grup:-users}
+
+# Komut çıktısı
+echo "Yeni kullanıcı oluşturmak için aşağıdaki komutu çalıştırın:"
+echo "sudo useradd $dosya_olustur -d /home/$login_isim -s $sec_shell -c \"$tam_ad\" -g $grup $login_isim"
+echo "Şifre belirlemek için:"
+echo "sudo passwd $login_isim"
